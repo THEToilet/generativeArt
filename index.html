@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+  <script type="text/javascript">
+    var emojies = [];
+
+    var dx = 0;
+    var dy = 0;
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+      background(100);
+      this.emojiCode = random(10) > 7.75 ? floor(random(128512, 128592)) : floor(random(127744, 128318));
+    }
+
+    function update() {
+      dx = 300 * sin(millis()) + windowWidth / 2 - 200;
+      dy = 300 * cos(millis()) + windowHeight / 2 + 100;
+    }
+
+    function draw() {
+      update();
+      this.emoji = String.fromCodePoint(this.emojiCode);
+      textSize(300);
+      text(this.emoji, (windowWidth / 2 - 300), (windowHeight / 2 + 200));
+      textSize(100);
+      text(this.emoji, dx, dy);
+    }
+
+    function emoji(){
+      
+    }
+  </script>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/p5@1.0.0/lib/p5.min.js"></script>
+
+</html>
