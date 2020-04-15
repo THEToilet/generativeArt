@@ -10,34 +10,92 @@
 <body>
 
   <script type="text/javascript">
+
+    var MAX_EMOJIES = 700;
+
     var emojies = [];
+    var pool = [];
 
-    var dx = 0;
-    var dy = 0;
+    var sizeScalar = 0.97;
+    var force = 3;
+    var drag = 2;
+    var theta = 0.5;
 
-    function setup() {
-      createCanvas(windowWidth, windowHeight);
-      background(100);
+    function Emoji(x, y, size) {
       this.emojiCode = random(10) > 7.75 ? floor(random(128512, 128592)) : floor(random(127744, 128318));
+      this.emoji = String.fromCodePoint(this.emojiCode);
+      this.alive = true;
+      this.theta = random(TWO_PI);
+      this.size = size || 10;
+      this.location = createVector(x || 0.0, y || 0.0);
+      this.velocity = createVector(0.0, 0.0);
+    }
+
+    Emoji.prototype.move = function () {
+      this.location.add(this.velocity);
+      this.velocity.mult(this.drag);
+      this.velocity.x += sin(this.theta) * 0.1;
+      this.velocity.y += cos(this.theta) * 0.1;
+      this.size *= sizeScalar;
+      this.alive = this.size > 0.5;
+    }
+
+    Emoji.prototype.show = function () {
+      textSize(this.size);
+      text(this.emoji, this.location.x, this.location.y);
+    }
+
+    function spawn(x, y) {
+      if (emojies.length >= MAX_EMOJIES) {
+        pool.push(emojies.shift());
+      }
+      var emoji = new Emoji(mouseX, mouseY, random(100, 500));
+      emoji.velocity.x = sin(theta) * force;
+      emoji.velocity.y = cos(theta) * force;
+      emojies.push(emoji);
     }
 
     function update() {
-      dx = 300 * sin(millis()) + windowWidth / 2 - 200;
-      dy = 300 * cos(millis()) + windowHeight / 2 + 100;
+      for (var i = emojies.length - 1; i >= 0; i--) {
+        var emoji = emojies[i];
+        if (emoji.alive) {
+          emoji.move();
+        } else {
+          pool.push(emojies.splice(i, 1)[0]);
+        }
+      }
+    }
+
+    function moved() {
+      var max = random(1, 4);
+      for (var i = 0; i < max; i++) {
+        spawn(mouseX, mouseY);
+      }
+    }
+
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
     }
 
     function draw() {
       update();
-      this.emoji = String.fromCodePoint(this.emojiCode);
-      textSize(300);
-      text(this.emoji, (windowWidth / 2 - 300), (windowHeight / 2 + 200));
-      textSize(100);
-      text(this.emoji, dx, dy);
+      drawingContext.globalCompositeOperation = 'normal';
+      background(0);
+   //   drawingContext.globalCompositeOperation = 'lighter';
+      for (var i = emojies.length - 1; i >= 0; i--) {
+        emojies[i].show();
+      }
     }
 
-    function emoji(){
-      
+    function mouseMoved() {
+      moved();
     }
+
+    function touchMoved() {
+      moved();
+    }
+
   </script>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/p5@1.0.0/lib/p5.min.js"></script>
